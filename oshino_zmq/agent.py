@@ -31,6 +31,7 @@ class ZmqAgent(Agent):
             logger.debug("Zmq socket is still waiting for connection")
 
     def on_start(self):
+        logger = self.get_logger()
         self.ctx = Context()
         self.socket = self.ctx.socket(zmq.PULL)
         if self.bind:
