@@ -32,7 +32,7 @@ class ZmqAgent(Agent):
 
     def on_start(self):
         self.ctx = Context()
-        self.socket = ctx.socket(zmq.PULL)
+        self.socket = self.ctx.socket(zmq.PULL)
         if self.bind:
             self.socket.bind(self.bind)
             logger.info("Zmq socket bound on: {0}".format(self.bind))
