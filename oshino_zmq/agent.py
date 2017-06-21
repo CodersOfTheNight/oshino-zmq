@@ -18,7 +18,9 @@ class ZmqAgent(Agent):
         return self._data["connect"]
 
     def parse_logentry(self, json_obj):
-        return json_obj
+        return {"metric": 1,
+                "tags": "log",
+                "attributes": json_obj}
 
     async def process(self, event_fn):
         logger = self.get_logger()
