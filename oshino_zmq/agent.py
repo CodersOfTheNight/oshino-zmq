@@ -23,15 +23,20 @@ class ZmqAgent(Agent):
     async def process(self, event_fn):
         logger = self.get_logger()
         if self.socket_active:
-            json_obj = await self.socket.recv_json()
-            logger.trace("Received msg: '{0}'".format(json_obj))
-            log_obj = self.parse_logentry(json_obj)
-            event_fn(service=self.prefix, **log_obj)
+            logger.trace("Trying to read msg")
+            try:
+                json_obj = await self.socket.recv_json()
+                logger.trace("Received msg: '{0}'".format(json_obj))
+                log_obj = self.parse_logentry(json_obj)
+                event_fn(service=self.prefix, **log_obj)
+            except:
+                logger.trace("Failed to read msg")
         else:
             logger.debug("Zmq socket is still waiting for connection")
 
     def on_start(self):
         logger = self.get_logger()
+        logger.info("Initializing zMQ context")
         self.ctx = Context()
         self.socket = self.ctx.socket(zmq.PULL)
         if self.bind:
