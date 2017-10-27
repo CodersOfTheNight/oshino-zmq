@@ -15,23 +15,18 @@ class ZmqAgent(Agent):
     def connect(self):
         return self._data["connect"]
 
-    def parse_logentry(self, json_obj):
-        return {"metric": 1,
-                "tags": "log",
-                "attributes": json_obj}
-
     async def process(self, event_fn):
         logger = self.get_logger()
         if self.socket_active:
             try:
                 logger.trace("Trying to read msg")
-                if self.socket in dict(events):
-                    json_obj = await self.socket.recv_json(zmq.NOBLOCK)
-                    logger.trace("Received msg: '{0}'".format(json_obj))
-                    log_obj = self.parse_logentry(json_obj)
-                    event_fn(service=self.prefix, **log_obj)
-            except:
+                json_obj = await self.socket.recv_json(zmq.NOBLOCK)
+                logger.trace("Received msg: '{0}'".format(json_obj))
+                event_fn(service=self.prefix, **json_obj)
+            except zmq.error.Again:
                 logger.trace("No message received")
+            except Exception as ex:
+                logger.exception(ex)
         else:
             logger.debug("Zmq socket is still waiting for connection")
 
